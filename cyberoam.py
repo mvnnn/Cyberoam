@@ -4,17 +4,18 @@ from urllib import urlencode
 from urllib2 import urlopen
 from time import sleep
 from os import system
+from bs4 import BeautifulSoup
 import subprocess
 import pynotify
 
-''''' this cyberoam working on DA-IICT because i use my collage IP
-      even if you close terminal but process not kill'''''
+''''' this cyberoam working on DA-IICT because i use DA IP
+      even if you close terminal but process will running'''''
 
 
 cyberoamIP = "10.100.56.55"   #The IP of the Cyberoam site of DA-IICT,
 cyberoamPort = "8090"   #PORT number
 neverQuit=True
-sleeptime=3600
+sleeptime=10
 pynotify.init("Cyberoam")
 URL = 'https://'+cyberoamIP+":"+cyberoamPort+'/'+'httpclient.html'
 
@@ -24,6 +25,25 @@ n.show()
 DA_id = raw_input("Enter your ID: ")
 passwordd = raw_input("password: ")
 
+
+def forprocide():
+    URLLIVE='https://'+cyberoamIP+":"+cyberoamPort+'/live?'+'mode=192&username='+str(DA_id)
+    info=urlopen(URLLIVE).read()
+    bs = BeautifulSoup(info)
+    data= bs.html.body
+    ss=1
+
+    if "exceeded" in data :
+        ss=0
+
+    elif "login again" in data:
+        ss=0
+    else:
+        ss=1
+    return ss
+
+def Timerforlogin():
+    sleep(sleeptime)
 
 def forLogin(user,passs):
         params = urlencode({'mode': 191, 'username': user, 'password': passs})
@@ -49,10 +69,9 @@ def logout():
             exit()
 
 
-if __name__ == "__main__":
+def loginLogout():
     relogin=False
     try:
-
         if "login" in sys.argv:
             info=forLogin(DA_id,passwordd)
             if "could not" in info:
@@ -72,27 +91,31 @@ if __name__ == "__main__":
                 n.show()
                 relogin=True
                 print "Press Ctrl + C to logout"
+                #print forprocide()
 
             else:
-                print "Request Failed, Please try again later"
+                print "this Cyberoam don't recognise your error..please try again"
+
 
 
             if relogin:
-                min=0;
-                ss=0
-                while True:
-                   if min !=3600 :
-                    sleep(sleeptime)
-                    min=3600
-                    ss=1
+                total=0
+                while forprocide() != 0:
+                 Timerforlogin()
+                 total +=10
+                 if(total==3600):
+                   break
 
-                    if ss==1:
-                     min=0
-                     ss=0
-                     print "Logging in again"
-                     n = pynotify.Notification("enter valid DA_id and password and run file")
-                     n.show()
-                     data = forLogin(DA_id,passwordd)
+
+                if total==3600:
+                 total=0
+                 sys.argv="login"
+                 loginLogout()
+
+                else :
+                    logout()
+                    exit()
+
 
 
 
@@ -102,8 +125,14 @@ if __name__ == "__main__":
     except Exception as e:
         print e
 
-    if "logout" in sys.argv:
-        logout()
+    try :
+        if "logout" in sys.argv:
+            logout()
+            exit()
+    except Exception as e:
+        print e
 
 
+if __name__ == "__main__":
 
+    loginLogout()
