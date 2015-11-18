@@ -1,13 +1,13 @@
 # Cyberoam
-Cyberoam login in Python
+Cyberoam auto-login in Python
 
 ##Task
-install python2.7.6
+install python2.7.6 
 
 #for login
 python cyberoam.py login
-#id:****
-#password:****
+ id:****
+ password:****
 
 #for logout
 python cyberoam.py logout "OR" Ctrl+C
